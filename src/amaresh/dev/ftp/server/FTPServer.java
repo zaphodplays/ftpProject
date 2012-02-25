@@ -17,7 +17,11 @@ import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
-
+/**
+ * 
+ * @author Amaresh
+ *
+ */
 public class FTPServer {
 	
 	private String defaultPath;
