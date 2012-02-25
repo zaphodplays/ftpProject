@@ -16,7 +16,13 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.FileChannel;
+import java.nio.channels.NetworkChannel;
+import java.nio.channels.SocketChannel;
 /**
  * 
  * @author Amaresh
@@ -112,6 +118,62 @@ public class FTPServer {
 		}
 	}
 	
+	class NIOServerThread implements Runnable {
+		
+		private Socket clientSocket;
+		
+		private BufferedReader in;
+		
+		private FileChannel fileIn;
+		
+		private SocketChannel out;
+		
+		private String fileName;
+		
+		public NIOServerThread(Socket clientSocket) {
+			this.clientSocket = clientSocket;
+		}
+
+		@Override
+		public void run() {
+			try {
+				out = clientSocket.getChannel();
+				
+				in = new BufferedReader((new InputStreamReader(clientSocket.getInputStream())));
+				
+				
+				fileName = in.readLine();
+				fileName = defaultPath + fileName;
+				
+				fileIn = new FileInputStream(fileName).getChannel();
+				
+				ByteBuffer buf = ByteBuffer.allocate(1024*1024*50);
+				
+				channel(fileIn, out, buf);
+				
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try {
+					in.close();
+					out.close();
+					fileIn.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			
+			
+			
+			
+		}
+		
+	}
+	
 	public static void stream(InputStream in, OutputStream out) throws IOException{
 		byte[] buf = new byte[1024*1024];
 		int bytesRead = 0;
@@ -131,9 +193,22 @@ public class FTPServer {
 		}
 	}
 	
+	public static void channel(FileChannel in, SocketChannel out, ByteBuffer buf) throws IOException {
+		while(true) {
+			buf.clear();
+			int r = in.read(buf);
+			if(r == -1) {
+				break;
+			}
+			buf.flip();
+			out.write(buf);
+		}
+	}
+	
 	
 	
 	public static void main(String args[]) {
+		
 		FTPServer server = new FTPServer("/Users/amareshshukla/Documents/workspaceEE/");
 	}
 

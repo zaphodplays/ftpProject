@@ -19,6 +19,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 
 public class FTPClient {
 	
@@ -114,6 +117,18 @@ public class FTPClient {
 			totalBytesStoredInBuf = totalBytesStoredInBuf + bytesRead;
 		}
 		return totalBytesStoredInBuf;
+	}
+	
+	public static void channel(FileChannel fileChannel, SocketChannel network, ByteBuffer buf) throws IOException {
+		while(true) {
+			buf.clear();
+			int r = fileChannel.read(buf);
+			if(r == -1) {
+				break;
+			}
+			buf.flip();
+			network.write(buf);
+		}
 	}
 	
 	public static void main(String args[]) {
