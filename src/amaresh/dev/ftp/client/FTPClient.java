@@ -1,5 +1,9 @@
 package amaresh.dev.ftp.client;
 
+/**
+ * @author amaresh
+ */
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
